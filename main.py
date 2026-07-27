@@ -51,18 +51,16 @@ else:
     )
 
 
-if game.players:
+if game.players and game.rounds_played ==0:
     st.write("**Current players:**")
 
     for player in game.players:
         st.write(f"- {player}")
+elif game.players and game.rounds_played > 0:
+    pass
 else:
     st.info("Add at least two players to begin.")
 
-
-# ---------------------------------
-# Enter round scores
-# ---------------------------------
 
 # ---------------------------------
 # Enter round scores
@@ -72,44 +70,55 @@ if len(game.players) >= 2:
     st.divider()
     st.header(f"Round {game.next_round}")
 
-    with st.form(
-        f"round_form_{game.next_round}",
-        clear_on_submit=False,
-    ):
+    with st.form(f"round_form_{game.next_round}"):
         bets: dict[str, int] = {}
         tricks_got: dict[str, int] = {}
 
+        # Column headings
+        name_heading, bet_heading, got_heading = st.columns(
+            [2, 1, 1],
+            gap="small",
+            vertical_alignment="center",
+        )
+
+        name_heading.markdown("**Player**")
+        bet_heading.markdown("**Bet**")
+        got_heading.markdown("**Got**")
+
         for player_number, player in enumerate(game.players):
-            with st.container(border=True):
-                st.subheader(player)
+            name_column, bet_column, got_column = st.columns(
+                [1, 1, 1],
+                gap="small",
+                vertical_alignment="center",
+            )
 
-                bets[player] = int(
-                    st.number_input(
-                        label="Bet",
-                        min_value=0,
-                        max_value=game.next_round,
-                        value=0,
-                        step=1,
-                        key=(
-                            f"bet_{game.next_round}_"
-                            f"{player_number}"
-                        ),
-                    )
-                )
+            name_column.write(player)
 
-                tricks_got[player] = int(
-                    st.number_input(
-                        label="Got",
-                        min_value=0,
-                        max_value=game.next_round,
-                        value=0,
-                        step=1,
-                        key=(
-                            f"got_{game.next_round}_"
-                            f"{player_number}"
-                        ),
-                    )
+            bets[player] = int(
+                bet_column.number_input(
+                    label=f"{player} bet",
+                    min_value=0,
+                    max_value=game.next_round,
+                    value=0,
+                    step=1,
+                    key=f"bet_{game.next_round}_{player_number}",
+                    label_visibility="collapsed",
+                    width=85,
                 )
+            )
+
+            tricks_got[player] = int(
+                got_column.number_input(
+                    label=f"{player} got",
+                    min_value=0,
+                    max_value=game.next_round,
+                    value=0,
+                    step=1,
+                    key=f"got_{game.next_round}_{player_number}",
+                    label_visibility="collapsed",
+                    width=85,
+                )
+            )
 
         save_round = st.form_submit_button(
             "Save round",
@@ -123,7 +132,6 @@ if len(game.players) >= 2:
                     bets=bets,
                     tricks_got=tricks_got,
                 )
-
                 st.rerun()
 
             except ValueError as error:
