@@ -203,3 +203,83 @@ class WizardGame:
         self.scores = pd.DataFrame(
             columns=self.SCORE_COLUMNS
         )
+        
+    def z_scores(self) -> pd.DataFrame:
+        """Return each player's current score and z-score."""
+        leaderboard = self.leaderboard()
+
+        if leaderboard.empty:
+            return pd.DataFrame(
+                columns=[
+                    "Player",
+                    "Running Total",
+                    "Z-Score",
+                ]
+            )
+
+        results = leaderboard[
+            ["Player", "Running Total"]
+        ].copy()
+
+        mean_score = results["Running Total"].mean()
+
+        # ddof=0 treats the current players as the full population.
+        standard_deviation = results["Running Total"].std(
+            ddof=0
+        )
+
+        if standard_deviation == 0:
+            results["Z-Score"] = 0.0
+        else:
+            results["Z-Score"] = (
+                results["Running Total"] - mean_score
+            ) / standard_deviation
+
+        results["Z-Score"] = results["Z-Score"].round(2)
+
+        return results
+    
+    def bid_accuracy(self) -> pd.DataFrame:
+        """Return each player's successful bid percentage."""
+        if self.scores.empty:
+            return pd.DataFrame(
+                columns=[
+                    "Player",
+                    "Correct Bids",
+                    "Rounds Played",
+                    "Bid Accuracy",
+                ]
+            )
+
+        accuracy = self.scores.copy()
+
+        accuracy["Correct"] = (
+            accuracy["Bet"] == accuracy["Got"]
+        )
+
+        accuracy = (
+            accuracy.groupby(
+                "Player",
+                as_index=False,
+                sort=False,
+            )
+            .agg(
+                Correct_Bids=("Correct", "sum"),
+                Rounds_Played=("Correct", "size"),
+            )
+        )
+
+        accuracy["Bid Accuracy"] = (
+            accuracy["Correct_Bids"]
+            / accuracy["Rounds_Played"]
+            * 100
+        ).round(1)
+
+        accuracy = accuracy.rename(
+            columns={
+                "Correct_Bids": "Correct Bids",
+                "Rounds_Played": "Rounds Played",
+            }
+        )
+
+        return accuracy

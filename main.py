@@ -137,7 +137,7 @@ if len(game.players) >= 2:
 
 
 # ---------------------------------
-# Display results
+# Current standings
 # ---------------------------------
 
 if not game.scores.empty:
@@ -154,7 +154,17 @@ if not game.scores.empty:
 
     leader = leaderboard.iloc[0]
 
-    metric1, metric2, metric3 = st.columns(3)
+    if len(leaderboard) >= 2:
+        second_place = leaderboard.iloc[1]
+
+        lead_amount = int(
+            leader["Running Total"]
+            - second_place["Running Total"]
+        )
+    else:
+        lead_amount = 0
+
+    metric1, metric2, metric3, metric4 = st.columns(4)
 
     metric1.metric(
         "Current leader",
@@ -167,8 +177,13 @@ if not game.scores.empty:
     )
 
     metric3.metric(
-        "Rounds played",
-        game.rounds_played,
+        "In the lead by",
+        lead_amount,
+    )
+    
+    metric4.metric(
+        "Runner up",
+        second_place["Player"] if len(leaderboard) >= 2 else "N/A",
     )
 
 
@@ -198,6 +213,51 @@ if not game.scores.empty:
     st.header("Running totals")
 
     st.line_chart(chart_data)
+    # ---------------------------------
+    # Z-score chart
+    # ---------------------------------
+
+    st.header("Player z-scores")
+
+    z_score_data = game.z_scores()
+
+    z_score_chart = (
+        z_score_data[
+            ["Player", "Z-Score"]
+        ]
+        .set_index("Player")
+    )
+
+    st.bar_chart(z_score_chart)
+
+    st.caption(
+        "Positive values are above the player average. "
+        "Negative values are below the player average."
+    )
+    # ---------------------------------
+    # Bid accuracy
+    # ---------------------------------
+
+    st.header("Bid accuracy")
+
+    accuracy_data = game.bid_accuracy()
+
+    accuracy_columns = st.columns(
+        len(accuracy_data)
+    )
+
+    for column, (_, player) in zip(
+        accuracy_columns,
+        accuracy_data.iterrows(),
+    ):
+        column.metric(
+            label=player["Player"],
+            value=f"{player['Bid Accuracy']:.1f}%",
+            help=(
+                f"{int(player['Correct Bids'])} correct bids "
+                f"out of {int(player['Rounds Played'])} rounds"
+            ),
+        )
 
 
     # ---------------------------------
