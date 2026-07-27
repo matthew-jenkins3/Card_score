@@ -82,7 +82,7 @@ if len(game.players) >= 2:
 
         for player_number, player in enumerate(game.players):
             player_column, bet_column, got_column = st.columns(
-                [2, 1, 1]
+                [1, 1, 1]
             )
 
             player_column.write(player)
