@@ -75,8 +75,7 @@ if len(game.players) >= 2:
         tricks_got: dict[str, int] = {}
 
         # Column headings
-        name_heading, bet_heading, got_heading = st.columns(
-            [1, 2, 2],
+        name_heading, bet_heading, got_heading = st.columns(3,
             gap="small",
             vertical_alignment="center",
         )
@@ -86,8 +85,7 @@ if len(game.players) >= 2:
         got_heading.markdown("**Got**")
 
         for player_number, player in enumerate(game.players):
-            name_column, bet_column, got_column = st.columns(
-                [1, 2, 2],
+            name_column, bet_column, got_column = st.columns(3,
                 gap="small",
                 vertical_alignment="center",
             )
@@ -103,7 +101,7 @@ if len(game.players) >= 2:
                     step=1,
                     key=f"bet_{game.next_round}_{player_number}",
                     label_visibility="collapsed",
-                    width=100,
+                    width="stretch",
                 )
             )
 
@@ -116,7 +114,7 @@ if len(game.players) >= 2:
                     step=1,
                     key=f"got_{game.next_round}_{player_number}",
                     label_visibility="collapsed",
-                    width=100,
+                    width="stretch",
                 )
             )
 
