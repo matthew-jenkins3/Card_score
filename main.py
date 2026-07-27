@@ -70,74 +70,82 @@ if len(game.players) >= 2:
     st.divider()
     st.header(f"Round {game.next_round}")
 
-    with st.container(key="round-entry"):
-        with st.form(f"round_form_{game.next_round}"):
-            bets: dict[str, int] = {}
-            tricks_got: dict[str, int] = {}
+    with st.form(f"round_form_{game.next_round}"):
+        bets: dict[str, int] = {}
+        tricks_got: dict[str, int] = {}
 
-            name_heading, bet_heading, got_heading = st.columns(
-                [0.75, 1, 1],
-                gap="xsmall",
+        # Headings
+        with st.container(
+            horizontal=True,
+            vertical_alignment="center",
+            gap="xxsmall",
+        ):
+            st.markdown("**Player**", width=150)
+            st.markdown("**Bet**", width=150)
+            st.markdown("**Got**", width=150)
+
+        # Player rows
+        for player_number, player in enumerate(game.players):
+            with st.container(
+                horizontal=True,
                 vertical_alignment="center",
-            )
-
-            name_heading.markdown("**Player**")
-            bet_heading.markdown("**Bet**")
-            got_heading.markdown("**Got**")
-
-            for player_number, player in enumerate(game.players):
-                name_column, bet_column, got_column = st.columns(
-                    [0.75, 1, 1],
-                    gap="xsmall",
-                    vertical_alignment="center",
+                gap="xxsmall",
+            ):
+                st.markdown(
+                    f"**{player}**",
+                    width=150,
                 )
 
-                name_column.markdown(f"**{player}**")
-
                 bets[player] = int(
-                    bet_column.number_input(
+                    st.number_input(
                         label=f"{player} bet",
                         min_value=0,
                         max_value=game.next_round,
                         value=0,
                         step=1,
                         format="%d",
-                        key=f"bet_{game.next_round}_{player_number}",
+                        key=(
+                            f"bet_{game.next_round}_"
+                            f"{player_number}"
+                        ),
                         label_visibility="collapsed",
-                        width="stretch",
+                        width=150,
                     )
                 )
 
                 tricks_got[player] = int(
-                    got_column.number_input(
+                    st.number_input(
                         label=f"{player} got",
                         min_value=0,
                         max_value=game.next_round,
                         value=0,
                         step=1,
                         format="%d",
-                        key=f"got_{game.next_round}_{player_number}",
+                        key=(
+                            f"got_{game.next_round}_"
+                            f"{player_number}"
+                        ),
                         label_visibility="collapsed",
-                        width="stretch",
+                        width=150,
                     )
                 )
 
-            save_round = st.form_submit_button(
-                "Save round",
-                type="primary",
-                use_container_width=True,
-            )
+        save_round = st.form_submit_button(
+            "Save round",
+            type="primary",
+            width="stretch",
+        )
 
-            if save_round:
-                try:
-                    game.add_round(
-                        bets=bets,
-                        tricks_got=tricks_got,
-                    )
-                    st.rerun()
+        if save_round:
+            try:
+                game.add_round(
+                    bets=bets,
+                    tricks_got=tricks_got,
+                )
+                st.rerun()
 
-                except ValueError as error:
-                    st.error(str(error))
+            except ValueError as error:
+                st.error(str(error))
 
 
 # ---------------------------------
