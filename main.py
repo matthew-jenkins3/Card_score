@@ -1,0 +1,231 @@
+import streamlit as st
+from wizzard_game import WizardGame
+
+
+st.set_page_config(
+    page_title="Wizard Score Calculator",
+    page_icon="🃏",
+    layout="wide",
+)
+
+
+# Create one WizardGame object for this browser session.
+if "wizard_game" not in st.session_state:
+    st.session_state.wizard_game = WizardGame()
+
+# Give the stored game a shorter name.
+game: WizardGame = st.session_state.wizard_game
+
+
+st.title("🧙 Wizard Scorekeeper")
+
+
+# ---------------------------------
+# Add players
+# ---------------------------------
+
+st.header("Players")
+
+if game.rounds_played == 0:
+    with st.form(
+        "add_player_form",
+        clear_on_submit=True,
+    ):
+        player_name = st.text_input(
+            "Player name",
+            placeholder="Enter a player name",
+        )
+
+        add_player = st.form_submit_button("Add player")
+
+        if add_player:
+            try:
+                game.add_player(player_name)
+                st.rerun()
+
+            except ValueError as error:
+                st.error(str(error))
+else:
+    st.caption(
+        "The player list is locked because the game has started."
+    )
+
+
+if game.players:
+    st.write("**Current players:**")
+
+    for player in game.players:
+        st.write(f"- {player}")
+else:
+    st.info("Add at least two players to begin.")
+
+
+# ---------------------------------
+# Enter round scores
+# ---------------------------------
+
+if len(game.players) >= 2:
+    st.divider()
+    st.header(f"Round {game.next_round}")
+
+    with st.form(f"round_form_{game.next_round}"):
+        player_heading, bet_heading, got_heading = st.columns(
+            [2, 1, 1]
+        )
+
+        player_heading.markdown("**Player**")
+        bet_heading.markdown("**Bet**")
+        got_heading.markdown("**Got**")
+
+        bets: dict[str, int] = {}
+        tricks_got: dict[str, int] = {}
+
+        for player_number, player in enumerate(game.players):
+            player_column, bet_column, got_column = st.columns(
+                [2, 1, 1]
+            )
+
+            player_column.write(player)
+
+            bets[player] = int(
+                bet_column.number_input(
+                    label=f"{player} bet",
+                    min_value=0,
+                    max_value=game.next_round,
+                    value=0,
+                    step=1,
+                    key=(
+                        f"bet_{game.next_round}_"
+                        f"{player_number}"
+                    ),
+                    label_visibility="collapsed",
+                )
+            )
+
+            tricks_got[player] = int(
+                got_column.number_input(
+                    label=f"{player} got",
+                    min_value=0,
+                    max_value=game.next_round,
+                    value=0,
+                    step=1,
+                    key=(
+                        f"got_{game.next_round}_"
+                        f"{player_number}"
+                    ),
+                    label_visibility="collapsed",
+                )
+            )
+
+        save_round = st.form_submit_button(
+            "Save round",
+            type="primary",
+            use_container_width=True,
+        )
+
+        if save_round:
+            try:
+                game.add_round(
+                    bets=bets,
+                    tricks_got=tricks_got,
+                )
+
+                st.rerun()
+
+            except ValueError as error:
+                st.error(str(error))
+
+
+# ---------------------------------
+# Display results
+# ---------------------------------
+
+if not game.scores.empty:
+    st.divider()
+    st.header("Current standings")
+
+    leaderboard = game.leaderboard()
+
+    st.dataframe(
+        leaderboard,
+        hide_index=True,
+        use_container_width=True,
+    )
+
+    leader = leaderboard.iloc[0]
+
+    metric1, metric2, metric3 = st.columns(3)
+
+    metric1.metric(
+        "Current leader",
+        leader["Player"],
+    )
+
+    metric2.metric(
+        "Leader's score",
+        int(leader["Running Total"]),
+    )
+
+    metric3.metric(
+        "Rounds played",
+        game.rounds_played,
+    )
+
+
+    # ---------------------------------
+    # Score history
+    # ---------------------------------
+
+    st.header("Score history")
+
+    score_history = game.score_history(
+        value="Running Total"
+    )
+
+    st.dataframe(
+        score_history,
+        hide_index=True,
+        use_container_width=True,
+    )
+
+
+    # ---------------------------------
+    # Score chart
+    # ---------------------------------
+
+    chart_data = score_history.set_index("Round")
+
+    st.header("Running totals")
+
+    st.line_chart(chart_data)
+
+
+    # ---------------------------------
+    # Game controls
+    # ---------------------------------
+
+    undo_column, reset_column = st.columns(2)
+
+    if undo_column.button(
+        "Undo last round",
+        use_container_width=True,
+    ):
+        game.undo_last_round()
+        st.rerun()
+
+    if reset_column.button(
+        "Reset game",
+        use_container_width=True,
+    ):
+        game.reset()
+        st.rerun()
+
+elif game.players:
+    st.divider()
+
+    if st.button(
+        "Reset players",
+        use_container_width=True,
+    ):
+        game.reset()
+        st.rerun()
