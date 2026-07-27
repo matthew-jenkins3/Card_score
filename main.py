@@ -176,6 +176,23 @@ if not game.scores.empty:
     else:
         lead_amount = 0
 
+
+    # ---------------------------------
+    # Score history
+    # ---------------------------------
+
+    st.header("Score history")
+
+    score_history = game.score_history(
+        value="Running Total"
+    )
+
+    st.dataframe(
+        score_history,
+        hide_index=True,
+        use_container_width=True,
+    )
+    
     metric1, metric2, metric3, metric4 = st.columns(4)
 
     metric1.metric(
@@ -198,22 +215,6 @@ if not game.scores.empty:
         second_place["Player"] if len(leaderboard) >= 2 else "N/A",
     )
 
-
-    # ---------------------------------
-    # Score history
-    # ---------------------------------
-
-    st.header("Score history")
-
-    score_history = game.score_history(
-        value="Running Total"
-    )
-
-    st.dataframe(
-        score_history,
-        hide_index=True,
-        use_container_width=True,
-    )
 
 
     # ---------------------------------
