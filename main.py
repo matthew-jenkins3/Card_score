@@ -76,7 +76,7 @@ if len(game.players) >= 2:
 
         # Column headings
         name_heading, bet_heading, got_heading = st.columns(
-            [2, 1, 1],
+            [1, 2, 2],
             gap="small",
             vertical_alignment="center",
         )
@@ -87,7 +87,7 @@ if len(game.players) >= 2:
 
         for player_number, player in enumerate(game.players):
             name_column, bet_column, got_column = st.columns(
-                [1, 1, 1],
+                [1, 2, 2],
                 gap="small",
                 vertical_alignment="center",
             )
@@ -103,7 +103,7 @@ if len(game.players) >= 2:
                     step=1,
                     key=f"bet_{game.next_round}_{player_number}",
                     label_visibility="collapsed",
-                    width=85,
+                    width=100,
                 )
             )
 
@@ -116,7 +116,7 @@ if len(game.players) >= 2:
                     step=1,
                     key=f"got_{game.next_round}_{player_number}",
                     label_visibility="collapsed",
-                    width=85,
+                    width=100,
                 )
             )
 
