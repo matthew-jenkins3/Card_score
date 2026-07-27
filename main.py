@@ -81,8 +81,8 @@ if len(game.players) >= 2:
             gap="xxsmall",
         ):
             st.markdown("**Player**", width=85)
-            st.markdown("**Bet**", width=85)
-            st.markdown("**Got**", width=85)
+            st.markdown("**Bet**", width=125)
+            st.markdown("**Got**", width=125)
 
         # Player rows
         for player_number, player in enumerate(game.players):
@@ -109,7 +109,7 @@ if len(game.players) >= 2:
                             f"{player_number}"
                         ),
                         label_visibility="collapsed",
-                        width=85,
+                        width=125,
                     )
                 )
 
@@ -126,7 +126,7 @@ if len(game.players) >= 2:
                             f"{player_number}"
                         ),
                         label_visibility="collapsed",
-                        width=85,
+                        width=125,
                     )
                 )
 
