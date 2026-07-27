@@ -64,58 +64,52 @@ else:
 # Enter round scores
 # ---------------------------------
 
+# ---------------------------------
+# Enter round scores
+# ---------------------------------
+
 if len(game.players) >= 2:
     st.divider()
     st.header(f"Round {game.next_round}")
 
-    with st.form(f"round_form_{game.next_round}"):
-        player_heading, bet_heading, got_heading = st.columns(
-            [2, 1, 1]
-        )
-
-        player_heading.markdown("**Player**")
-        bet_heading.markdown("**Bet**")
-        got_heading.markdown("**Got**")
-
+    with st.form(
+        f"round_form_{game.next_round}",
+        clear_on_submit=False,
+    ):
         bets: dict[str, int] = {}
         tricks_got: dict[str, int] = {}
 
         for player_number, player in enumerate(game.players):
-            player_column, bet_column, got_column = st.columns(
-                [1, 1, 1]
-            )
+            with st.container(border=True):
+                st.subheader(player)
 
-            player_column.write(player)
-
-            bets[player] = int(
-                bet_column.number_input(
-                    label=f"{player} bet",
-                    min_value=0,
-                    max_value=game.next_round,
-                    value=0,
-                    step=1,
-                    key=(
-                        f"bet_{game.next_round}_"
-                        f"{player_number}"
-                    ),
-                    label_visibility="collapsed",
+                bets[player] = int(
+                    st.number_input(
+                        label="Bet",
+                        min_value=0,
+                        max_value=game.next_round,
+                        value=0,
+                        step=1,
+                        key=(
+                            f"bet_{game.next_round}_"
+                            f"{player_number}"
+                        ),
+                    )
                 )
-            )
 
-            tricks_got[player] = int(
-                got_column.number_input(
-                    label=f"{player} got",
-                    min_value=0,
-                    max_value=game.next_round,
-                    value=0,
-                    step=1,
-                    key=(
-                        f"got_{game.next_round}_"
-                        f"{player_number}"
-                    ),
-                    label_visibility="collapsed",
+                tricks_got[player] = int(
+                    st.number_input(
+                        label="Got",
+                        min_value=0,
+                        max_value=game.next_round,
+                        value=0,
+                        step=1,
+                        key=(
+                            f"got_{game.next_round}_"
+                            f"{player_number}"
+                        ),
+                    )
                 )
-            )
 
         save_round = st.form_submit_button(
             "Save round",
