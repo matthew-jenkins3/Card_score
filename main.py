@@ -78,7 +78,7 @@ if len(game.players) >= 2:
         with st.container(
             horizontal=True,
             vertical_alignment="center",
-            gap="xxsmall",
+            gap=None,
         ):
             st.markdown("**Player**", width=75)
             st.markdown("**Bet**", width=125)
@@ -89,7 +89,7 @@ if len(game.players) >= 2:
             with st.container(
                 horizontal=True,
                 vertical_alignment="center",
-                gap="xxsmall",
+                gap=None,
             ):
                 st.markdown(
                     f"**{player}**",
